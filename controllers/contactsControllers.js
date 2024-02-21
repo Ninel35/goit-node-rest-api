@@ -1,8 +1,4 @@
 const contactsService = require("../services/contactsServices.js");
-const {
-  createContactSchema,
-  updateContactSchema,
-} = require("../schemas/contactsSchemas.js");
 
 const getAllContacts = async (req, res) => {
   res.send(await contactsService.listContacts());
@@ -19,31 +15,12 @@ const deleteContact = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const contact = {
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone,
-  };
-  const { value, error } = createContactSchema.validate(contact);
-  if (typeof error !== "undefined") {
-    return res.status(400).send("Validator Error");
-  }
-
-  res.status(201).send(await contactsService.addContact(value));
+  res.status(201).send(await contactsService.addContact(req.body));
 };
 
 const updateContact = async (req, res) => {
   const id = req.params.id;
-  const contact = {};
-  for (const property in req.body) {
-    contact[property] = req.body[property];
-  }
-  const { value, error } = updateContactSchema.validate(contact);
-  if (typeof error !== "undefined") {
-    return res.status(400).send("Validator Error");
-  }
-
-  res.status(201).send(await contactsService.upContact(id, value));
+  res.status(201).send(await contactsService.upContact(id, req.body));
 };
 
 module.exports = {
