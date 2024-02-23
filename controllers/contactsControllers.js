@@ -1,3 +1,4 @@
+const HttpError = require("../helpers/HttpError.js");
 const contactsService = require("../services/contactsServices.js");
 
 const getAllContacts = async (req, res) => {
@@ -8,15 +9,20 @@ const getOneContact = async (req, res) => {
   const id = req.params.id;
   const contact = await contactsService.getContactById(id);
   if (contact) {
-    res.send(await contactsService.getContactById(id));
+    res.send(contact);
   } else {
-    res.status(404).send({ message: "Not found" });
+    res.status(404).send(HttpError(404).message);
   }
 };
 
 const deleteContact = async (req, res) => {
   const id = req.params.id;
-  res.send(await contactsService.removeContact(id));
+  const contact = await contactsService.removeContact(id);
+  if (contact) {
+    res.send(contact);
+  } else {
+    res.status(404).send(HttpError(404).message);
+  }
 };
 
 const createContact = async (req, res) => {
@@ -25,7 +31,12 @@ const createContact = async (req, res) => {
 
 const updateContact = async (req, res) => {
   const id = req.params.id;
-  res.status(201).send(await contactsService.upContact(id, req.body));
+  const contact = await contactsService.upContact(id, req.body);
+  if (contact) {
+    res.status(201).send(contact);
+  } else {
+    res.status(404).send(HttpError(404).message);
+  }
 };
 
 module.exports = {

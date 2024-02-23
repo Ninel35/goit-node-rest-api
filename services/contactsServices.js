@@ -53,15 +53,17 @@ async function removeContact(contactId) {
 
 async function upContact(contactId, data) {
   const contacts = await readContacts();
+  let contact = null;
   const updateContacts = contacts.map((el) => {
     if (el.id === contactId) {
-      return { ...el, ...data };
+      contact = { ...el, ...data };
+      return contact;
     }
     return el;
   });
   await writeContacts(updateContacts);
 
-  return updateContacts;
+  return contact;
 }
 
 module.exports = {
