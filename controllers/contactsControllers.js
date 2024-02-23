@@ -6,7 +6,12 @@ const getAllContacts = async (req, res) => {
 
 const getOneContact = async (req, res) => {
   const id = req.params.id;
-  res.send(await contactsService.getContactById(id));
+  const contact = await contactsService.getContactById(id);
+  if (contact) {
+    res.send(await contactsService.getContactById(id));
+  } else {
+    res.status(404).send({ message: "Not found" });
+  }
 };
 
 const deleteContact = async (req, res) => {
