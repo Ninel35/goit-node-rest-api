@@ -1,11 +1,68 @@
-import contactsService from "../services/contactsServices.js";
+const HttpError = require("../helpers/HttpError.js");
+const contactsService = require("../services/contactsServices.js");
 
-export const getAllContacts = (req, res) => {};
+const getAllContacts = async (req, res, next) => {
+  try {
+    res.send(await contactsService.listContacts());
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const getOneContact = (req, res) => {};
+const getOneContact = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const contact = await contactsService.getContactById(id);
+    if (!contact) {
+      next(HttpError(404));
+      return;
+    }
+    res.send(contact);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const deleteContact = (req, res) => {};
+const deleteContact = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const contact = await contactsService.removeContact(id);
+    if (!contact) {
+      next(HttpError(404));
+      return;
+    }
+    res.send(contact);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const createContact = (req, res) => {};
+const createContact = async (req, res) => {
+  try {
+    res.status(201).send(await contactsService.addContact(req.body));
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const updateContact = (req, res) => {};
+const updateContact = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const contact = await contactsService.upContact(id, req.body);
+    if (!contact) {
+      next(HttpError(404));
+      return;
+    }
+    res.status(201).send(contact);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getAllContacts,
+  getOneContact,
+  deleteContact,
+  createContact,
+  updateContact,
+};
