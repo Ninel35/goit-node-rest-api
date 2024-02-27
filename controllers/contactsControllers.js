@@ -24,9 +24,6 @@ export const getOneContact = async (req, res, next) => {
     const id = req.params.id;
     // const contact = await getContactById(id);
     const contact = await Contact.findById(id);
-    // if (contact === null) {
-    //   res.status(404).send("Not found");
-    // }
     if (!contact) {
       next(HttpError(404));
       return;
@@ -40,7 +37,7 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await removeContact(id);
+    const contact = await Contact.findByIdAndDelete(id);
     if (!contact) {
       next(HttpError(404));
       return;
@@ -64,12 +61,30 @@ export const createContact = async (req, res) => {
 export const updateContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await upContact(id, req.body);
+    // const contact = await upContact(id, req.body);
+    const contact = await Contact.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     if (!contact) {
       next(HttpError(404));
       return;
     }
     res.status(201).send(contact);
+  } catch (error) {
+    next(error);
+  }
+};
+export const updateStatusContact = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const contact = await Contact.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!contact) {
+      next(HttpError(404));
+      return;
+    }
+    res.status(200).send(contact);
   } catch (error) {
     next(error);
   }
