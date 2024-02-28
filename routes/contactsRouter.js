@@ -11,6 +11,7 @@ import {
 import {
   createContactSchema,
   updateContactSchema,
+  updateStatusSchema,
 } from "../schemas/contactsSchemas.js";
 
 import validateBody from "../helpers/validateBody.js";
@@ -34,6 +35,11 @@ contactsRouter.put(
 
 contactsRouter.post("/", validateBody(createContactSchema), createContact);
 
-contactsRouter.patch("/:id/favorite", isValidId, updateStatusContact);
+contactsRouter.patch(
+  "/:id/favorite",
+  validateBody(updateStatusSchema),
+  isValidId,
+  updateStatusContact
+);
 
 export default contactsRouter;

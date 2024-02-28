@@ -66,9 +66,14 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await Contact.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const { favorite } = req.body;
+    const contact = await Contact.findByIdAndUpdate(
+      id,
+      { favorite },
+      {
+        new: true,
+      }
+    );
     if (!contact) {
       next(HttpError(404));
       return;
