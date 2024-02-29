@@ -1,8 +1,19 @@
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
+import express from "express";
+import morgan from "morgan";
+import cors from "cors";
 
-const contactsRouter = require("./routes/contactsRouter.js");
+import contactsRouter from "./routes/contactsRouter.js";
+import mongoose from "mongoose";
+import "dotenv/config.js";
+
+const DB_URI = process.env.DB_URI;
+mongoose
+  .connect(DB_URI)
+  .then(() => console.log("Database connection successful"))
+  .catch((error) => {
+    console.error("Database connection error", error);
+    process.exit(1);
+  });
 
 const app = express();
 

@@ -1,18 +1,20 @@
-const HttpError = require("../helpers/HttpError.js");
-const contactsService = require("../services/contactsServices.js");
+import HttpError from "../helpers/HttpError.js";
 
-const getAllContacts = async (req, res, next) => {
+import Contact from "../models/contact.js";
+
+export const getAllContacts = async (req, res, next) => {
   try {
-    res.send(await contactsService.listContacts());
+    const contacts = await Contact.find();
+    res.send(contacts);
   } catch (error) {
     next(error);
   }
 };
 
-const getOneContact = async (req, res, next) => {
+export const getOneContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await contactsService.getContactById(id);
+    const contact = await Contact.findById(id);
     if (!contact) {
       next(HttpError(404));
       return;
@@ -23,10 +25,10 @@ const getOneContact = async (req, res, next) => {
   }
 };
 
-const deleteContact = async (req, res, next) => {
+export const deleteContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await contactsService.removeContact(id);
+    const contact = await Contact.findByIdAndDelete(id);
     if (!contact) {
       next(HttpError(404));
       return;
@@ -37,18 +39,21 @@ const deleteContact = async (req, res, next) => {
   }
 };
 
-const createContact = async (req, res) => {
+export const createContact = async (req, res) => {
   try {
-    res.status(201).send(await contactsService.addContact(req.body));
+    const result = await Contact.create(req.body);
+    res.status(201).send(result);
   } catch (error) {
     next(error);
   }
 };
 
-const updateContact = async (req, res, next) => {
+export const updateContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await contactsService.upContact(id, req.body);
+    const contact = await Contact.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     if (!contact) {
       next(HttpError(404));
       return;
@@ -58,11 +63,23 @@ const updateContact = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = {
-  getAllContacts,
-  getOneContact,
-  deleteContact,
-  createContact,
-  updateContact,
+export const updateStatusContact = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { favorite } = req.body;
+    const contact = await Contact.findByIdAndUpdate(
+      id,
+      { favorite },
+      {
+        new: true,
+      }
+    );
+    if (!contact) {
+      next(HttpError(404));
+      return;
+    }
+    res.status(200).send(contact);
+  } catch (error) {
+    next(error);
+  }
 };
