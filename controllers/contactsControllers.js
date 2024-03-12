@@ -3,8 +3,9 @@ import HttpError from "../helpers/HttpError.js";
 import Contact from "../models/contact.js";
 
 export const getAllContacts = async (req, res, next) => {
+  console.log(req.user);
   try {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find({ owner: req.user.id });
     res.send(contacts);
   } catch (error) {
     next(error);
@@ -19,6 +20,9 @@ export const getOneContact = async (req, res, next) => {
       next(HttpError(404));
       return;
     }
+    if (contact.owner.toString() !== req.user.id) {
+      return res.status(404).send("Contact not found");
+    }
     res.send(contact);
   } catch (error) {
     next(error);
@@ -28,11 +32,17 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const { owner } = await Contact.findById(id);
+    if (owner.toString() !== req.user.id) {
+      return res.status(404).send("Contact not found");
+    }
     const contact = await Contact.findByIdAndDelete(id);
+
     if (!contact) {
       next(HttpError(404));
       return;
     }
+
     res.send(contact);
   } catch (error) {
     next(error);
@@ -51,6 +61,10 @@ export const createContact = async (req, res) => {
 export const updateContact = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const { owner } = await Contact.findById(id);
+    if (owner.toString() !== req.user.id) {
+      return res.status(404).send("Contact not found");
+    }
     const contact = await Contact.findByIdAndUpdate(id, req.body, {
       new: true,
     });
@@ -66,6 +80,10 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const { owner } = await Contact.findById(id);
+    if (owner.toString() !== req.user.id) {
+      return res.status(404).send("Contact not found");
+    }
     const { favorite } = req.body;
     const contact = await Contact.findByIdAndUpdate(
       id,
