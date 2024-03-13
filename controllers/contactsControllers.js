@@ -3,7 +3,6 @@ import HttpError from "../helpers/HttpError.js";
 import Contact from "../models/contact.js";
 
 export const getAllContacts = async (req, res, next) => {
-  console.log(req.user);
   try {
     const contacts = await Contact.find({ owner: req.user.id });
     res.send(contacts);
@@ -15,14 +14,14 @@ export const getAllContacts = async (req, res, next) => {
 export const getOneContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await Contact.findById(id);
+
+    const { id: owner } = req.user;
+    const contact = await Contact.findOne({ _id: id, owner });
     if (!contact) {
       next(HttpError(404));
       return;
     }
-    if (contact.owner.toString() !== req.user.id) {
-      return res.status(404).send("Contact not found");
-    }
+
     res.send(contact);
   } catch (error) {
     next(error);
@@ -32,11 +31,10 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { owner } = await Contact.findById(id);
-    if (owner.toString() !== req.user.id) {
-      return res.status(404).send("Contact not found");
-    }
-    const contact = await Contact.findByIdAndDelete(id);
+
+    const { id: owner } = req.user;
+
+    const contact = await Contact.findOneAndDelete({ _id: id, owner });
 
     if (!contact) {
       next(HttpError(404));
@@ -61,13 +59,16 @@ export const createContact = async (req, res) => {
 export const updateContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { owner } = await Contact.findById(id);
-    if (owner.toString() !== req.user.id) {
-      return res.status(404).send("Contact not found");
-    }
-    const contact = await Contact.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+
+    const { id: owner } = req.user;
+
+    const contact = await Contact.findOneAndUpdate(
+      { _id: id, owner },
+      req.body,
+      {
+        new: true,
+      }
+    );
     if (!contact) {
       next(HttpError(404));
       return;
@@ -80,13 +81,11 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { owner } = await Contact.findById(id);
-    if (owner.toString() !== req.user.id) {
-      return res.status(404).send("Contact not found");
-    }
+    const { id: owner } = req.user;
+
     const { favorite } = req.body;
-    const contact = await Contact.findByIdAndUpdate(
-      id,
+    const contact = await Contact.findOneAndUpdate(
+      { _id: id, owner },
       { favorite },
       {
         new: true,

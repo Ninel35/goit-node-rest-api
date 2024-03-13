@@ -19,7 +19,12 @@ export const register = async (req, res, next) => {
       email: normalizedEmail,
       password: passwordHash,
     });
-    res.status(201).send({ message: "Registration successfully" });
+    res.status(201).send({
+      user: {
+        email: result.email,
+        subscription: result.subscription,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -50,7 +55,13 @@ export const login = async (req, res, next) => {
     );
 
     await User.findByIdAndUpdate(user._id, { token });
-    res.send({ token });
+    res.send({
+      token,
+      user: {
+        email: user.email,
+        subscription: user.subscription,
+      },
+    });
   } catch (error) {
     next(error);
   }
