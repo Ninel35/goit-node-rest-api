@@ -4,7 +4,7 @@ import Contact from "../models/contact.js";
 
 export const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find({ owner: req.user.id });
     res.send(contacts);
   } catch (error) {
     next(error);
@@ -14,11 +14,14 @@ export const getAllContacts = async (req, res, next) => {
 export const getOneContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await Contact.findById(id);
+
+    const { id: owner } = req.user;
+    const contact = await Contact.findOne({ _id: id, owner });
     if (!contact) {
       next(HttpError(404));
       return;
     }
+
     res.send(contact);
   } catch (error) {
     next(error);
@@ -28,11 +31,16 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await Contact.findByIdAndDelete(id);
+
+    const { id: owner } = req.user;
+
+    const contact = await Contact.findOneAndDelete({ _id: id, owner });
+
     if (!contact) {
       next(HttpError(404));
       return;
     }
+
     res.send(contact);
   } catch (error) {
     next(error);
@@ -51,9 +59,16 @@ export const createContact = async (req, res) => {
 export const updateContact = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const contact = await Contact.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+
+    const { id: owner } = req.user;
+
+    const contact = await Contact.findOneAndUpdate(
+      { _id: id, owner },
+      req.body,
+      {
+        new: true,
+      }
+    );
     if (!contact) {
       next(HttpError(404));
       return;
@@ -66,9 +81,11 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const { id: owner } = req.user;
+
     const { favorite } = req.body;
-    const contact = await Contact.findByIdAndUpdate(
-      id,
+    const contact = await Contact.findOneAndUpdate(
+      { _id: id, owner },
       { favorite },
       {
         new: true,
