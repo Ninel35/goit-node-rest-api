@@ -8,6 +8,8 @@ import mongoose from "mongoose";
 import "dotenv/config.js";
 import { authenticate } from "./middleware/authenticate.js";
 
+import uploadRouter from "./routes/users.js";
+
 const DB_URI = process.env.DB_URI;
 mongoose
   .connect(DB_URI)
@@ -25,6 +27,7 @@ app.use(express.json());
 
 app.use("/api/users", authRoutes);
 app.use("/api/contacts", authenticate, contactsRouter);
+app.use("/api/users", authenticate, uploadRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });

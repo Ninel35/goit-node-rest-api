@@ -2,6 +2,7 @@ import bycrypt from "bcrypt";
 import HttpError from "../helpers/HttpError.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
 
 export const register = async (req, res, next) => {
   try {
@@ -15,9 +16,12 @@ export const register = async (req, res, next) => {
       return;
     }
     const passwordHash = await bycrypt.hash(password, 10);
+    const avatarURL = gravatar.url(email);
+
     const result = await User.create({
       email: normalizedEmail,
       password: passwordHash,
+      avatarURL,
     });
     res.status(201).send({
       user: {
